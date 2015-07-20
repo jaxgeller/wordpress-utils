@@ -118,17 +118,24 @@ FILE_LOADED_NONCE=$( \
   | grep -o -e 'value="[a-zA-z0-9]*"' \
   | cut -d '"' -f 2 )
 
-
+# Need an ID param for the file loaded form
 FILE_LOADED_ID=$( \
   echo "$UPLOAD_FILE" \
   | grep 'name="import_id"' \
   | grep -o -e 'value="."' \
   | cut -d '"' -f 2)
 
+# Finally upload the backup
 curl -s \
   -b <(echo "$COOKIE") \
   --data "_wpnonce=$FILE_LOADED_NONCE&import_id=$FILE_LOADED_ID" \
   "$IP/wp-admin/admin.php?import=wordpress&step=2" 2>&1 >/dev/null
+if [[ $? -ne 0 ]]; then
+  echo "something went wrong with the upload, try again"
+  rm backup.wp.xml
+  exit 1
+fi
 
+# Clean, then all done
 rm backup.wp.xml
 echo "all done!"
