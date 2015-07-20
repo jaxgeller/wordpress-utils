@@ -1,15 +1,26 @@
-#wordpress-cloner
+# wordpress-cloner
 
-This goes into an existing wordpress instance, logs in, downloads a backup, spins up docker, loads the backup in, and you have a 'cloned' wordpress instance running.  This is great if you push something live, and you dont want to ftp changes.
+Create a local Docker instance from a live WordPress instance in seconds.
 
-### Dependencies
+This script automates the following:
 
-+ docker
+1. Log into a live WordPress instance
+2. Run the WordPress exporter
+3. Spin up a new Docker instance
+4. Import the WordPress data
 
-### Install
+## Usage
 
-`git clone https://github.com/jaxgeller/wordpress-cloner`
+To install:
 
-### Use
+```bash
+git clone https://github.com/jaxgeller/wordpress-cloner
+```
 
-`./run.sh` then follow the steps
+To run:
+
+```bash
+./run.sh
+```
+
+[![Built With Love](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
