@@ -8,7 +8,7 @@ This goes into an existing wordpress instance, logs in, downloads a backup, spin
 
 ### Install
 
-git clone this repo
+`git clone https://github.com/jaxgeller/wordpress-cloner`
 
 ### Use
 
