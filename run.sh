@@ -9,6 +9,9 @@ read USER
 echo -n "wp-admin password: "
 read -s PASSWD
 
+echo -n "local wp theme (will mount into docker): "
+read -s THEME
+
 # Get initial login cookie of the current install
 LOGIN_COOKIE=$( \
   curl -s \
@@ -40,6 +43,7 @@ docker run \
   --name wp \
   --link mysql:mysql \
   -p 8000:80 \
+  -v $(pwd)/$THEME:/var/www/html/wp-content/themes/$THEME \
   -d wordpress 2>&1 >/dev/null
 
 # get docker ip address
@@ -118,17 +122,31 @@ FILE_LOADED_NONCE=$( \
   | grep -o -e 'value="[a-zA-z0-9]*"' \
   | cut -d '"' -f 2 )
 
-
+# Need an ID param for the file loaded form
 FILE_LOADED_ID=$( \
   echo "$UPLOAD_FILE" \
   | grep 'name="import_id"' \
   | grep -o -e 'value="."' \
   | cut -d '"' -f 2)
 
+# Finally upload the backup
 curl -s \
   -b <(echo "$COOKIE") \
   --data "_wpnonce=$FILE_LOADED_NONCE&import_id=$FILE_LOADED_ID" \
   "$IP/wp-admin/admin.php?import=wordpress&step=2" 2>&1 >/dev/null
+if [[ $? -ne 0 ]]; then
+  echo "something went wrong with the upload, try again"
+  rm backup.wp.xml
+  exit 1
+fi
 
+# clean
 rm backup.wp.xml
+
+# enable wp debug
+docker exec \
+  -d wp \
+  sed -i "s/'WP_DEBUG', false/'WP_DEBUG', true/g" wp-config.php \
+  2>&1 >/dev/null
+
 echo "all done!"
